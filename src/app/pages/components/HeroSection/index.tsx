@@ -1,5 +1,7 @@
 "use client";
 
+import SlideTextButton from "@/components/ui/slide-text-button";
+
 export function HeroSection() {
   return (
     <div className="mt-60 w-full">
@@ -11,6 +13,14 @@ export function HeroSection() {
         Hover over the boxes above and click. To be used on backgrounds of
         hero sections OR Call to Action sections.
       </p>
+
+      <div className="relative z-10 mt-10 flex items-center justify-center">
+        <SlideTextButton 
+          text="Get Started" 
+          hoverText="Join the waitlist" 
+          href="/signup"
+        />
+      </div>
     </div>
   );
 }
