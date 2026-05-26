@@ -41,7 +41,7 @@ export default function SlideTextButton({
     <motion.div
       animate={{ x: 0, opacity: 1, transition: { duration: 0.2 } }}
       className="relative"
-      initial={{ x: 200, opacity: 0 }}
+      initial={{ x: 0, opacity: 0 }}
     >
       <Link
         className={cn(
