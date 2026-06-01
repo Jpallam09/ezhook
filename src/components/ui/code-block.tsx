@@ -65,9 +65,30 @@ export function CodeBlock({
   }, [tabs, code, language])
 
   const currentCode = codeContent[activeTab]?.code || ""
+  const currentLang = codeContent[activeTab]?.language || language
+
+  // Helper to colorize bash installation commands
+  const renderBash = (code: string) => {
+    const parts = code.split(" ")
+    return (
+      <span className="whitespace-pre">
+        <span className="select-none text-zinc-400 dark:text-zinc-600">$ </span>
+        <span className="text-blue-500 dark:text-blue-400">{parts[0]}</span>{" "}
+        <span className="text-amber-600 dark:text-amber-500">{parts[1]}</span>{" "}
+        {parts.slice(2).map((part, i) => (
+          <span key={i}>
+            {part === "add" ? (
+              <span className="text-zinc-500 dark:text-zinc-400">add </span>
+            ) : (
+              <span className="font-semibold text-emerald-600 dark:text-emerald-400">{part}</span>
+            )}
+          </span>
+        ))}
+      </span>
+    )
+  }
 
   // Check overflow when tab changes or content updates
-  // biome-ignore lint/correctness/useExhaustiveDependencies: activeTab is needed to recheck overflow when content changes
   useLayoutEffect(() => {
     const checkOverflow = () => {
       if (preRef.current) {
@@ -286,7 +307,7 @@ export function CodeBlock({
               }}
               className="font-mono text-zinc-950 dark:text-zinc-50 block whitespace-pre"
             >
-              {currentCode}
+              {currentLang === "bash" ? renderBash(currentCode) : currentCode}
             </motion.code>
           </AnimatePresence>
         </pre>
