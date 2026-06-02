@@ -3,16 +3,17 @@
 import { useState } from "react";
 import { PackageManagerToggle, PackageManager } from "@/components/package-manager-toggle";
 import { InstallCodeBlock } from "@/components/install-code-block";
+import { CodeBlockWrapper } from "@/components/code-block-wrapper";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
 
 interface HookData {
   name: string;
   description: string;
   usage: string;
 }
-
-import { Separator } from "@/components/ui/separator";
 
 export function InstallContainer({
   hook,
@@ -33,15 +34,32 @@ export function InstallContainer({
   };
 
   return (
-    <div className={cn("max-w-lg mx-auto w-full", className)}>
+    <div className={cn("max-w-2xl mx-auto w-full", className)}>
       <Card>
-        <CardContent className="flex flex-col gap-4 py-4">
-          <div className="flex justify-center">
-            <PackageManagerToggle selected={manager} onSelect={setManager} />
+        <Tabs defaultValue="cli" className="w-full">
+          <div className="flex items-center justify-between px-6 pt-4">
+            <TabsList variant="line">
+              <TabsTrigger value="cli">CLI</TabsTrigger>
+              <TabsTrigger value="manual">Manual</TabsTrigger>
+            </TabsList>
           </div>
-          <Separator />
-          <InstallCodeBlock code={getCommand(manager)} />
-        </CardContent>
+          <Separator className="mt-2" />
+          <CardContent className="pt-4 pb-4">
+            <TabsContent value="cli" className="mt-0">
+              <div className="flex items-center justify-end mb-2">
+                <PackageManagerToggle selected={manager} onSelect={setManager} />
+              </div>
+              <InstallCodeBlock code={getCommand(manager)} />
+            </TabsContent>
+            <TabsContent value="manual" className="mt-0">
+              <CodeBlockWrapper>
+                <p className="text-sm text-muted-foreground p-4">
+                  Manual installation steps for {hook.name} will be here.
+                </p>
+              </CodeBlockWrapper>
+            </TabsContent>
+          </CardContent>
+        </Tabs>
       </Card>
     </div>
   );

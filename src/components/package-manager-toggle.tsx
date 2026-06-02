@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import React from "react";
 import { Pnpm, Npm, Bun } from "@dev.icons/react";
+import { Button } from "@/components/ui/button";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -26,19 +27,21 @@ export function PackageManagerToggle({
   return (
     <div className="flex gap-1">
       {PM_OPTIONS.map(({ id, label, Icon }) => (
-        <button
+        <Button
           key={id}
+          variant="link"
+          size="xs"
           onClick={() => onSelect(id)}
           className={cn(
-            "flex flex-1 items-center justify-center gap-2 rounded-lg border px-3 py-1 text-xs font-medium transition-colors",
+            "flex flex-1 items-center justify-center gap-2 transition-colors",
             selected === id
-              ? "border-foreground bg-background text-foreground ring-1 ring-foreground"
-              : "border-transparent bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground"
+              ? "text-foreground underline"
+              : "text-muted-foreground hover:text-foreground hover:no-underline"
           )}
         >
           <Icon className="size-4" />
           {" " + label}
-        </button>
+        </Button>
       ))}
     </div>
   );

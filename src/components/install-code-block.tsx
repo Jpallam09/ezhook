@@ -24,15 +24,15 @@ export function InstallCodeBlock({ code, className }: InstallCodeBlockProps) {
     const parts = code.split(" ")
     return (
       <span className="whitespace-pre">
-        <span className="select-none text-zinc-400 dark:text-zinc-600">$ </span>
-        <span className="text-blue-500 dark:text-blue-400">{parts[0]}</span>{" "}
-        <span className="text-amber-600 dark:text-amber-500">{parts[1]}</span>{" "}
+        <span className="select-none">$ </span>
+        <span>{parts[0]}</span>{" "}
+        <span>{parts[1]}</span>{" "}
         {parts.slice(2).map((part, i) => (
           <span key={i}>
             {part === "add" ? (
-              <span className="text-zinc-500 dark:text-zinc-400">add </span>
+              <span>add </span>
             ) : (
-              <span className="font-semibold text-emerald-600 dark:text-emerald-400">{part}</span>
+              <span className="font-semibold">{part}</span>
             )}
           </span>
         ))}
