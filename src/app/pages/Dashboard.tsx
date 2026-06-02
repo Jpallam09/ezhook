@@ -1,6 +1,7 @@
 "use client";
 
 import { InstallContainer } from "@/components/install-container";
+import { AppShell } from "@/app/pages/components/dashboard/app-shell";
 
 export default function Dashboard() {
   const dummyHook = {
@@ -10,9 +11,8 @@ export default function Dashboard() {
   };
 
   return (
-    <div >
-      <h2 className="text-2xl font-bold">Registry Dashboard</h2>
+    <AppShell>
       <InstallContainer hook={dummyHook} />
-    </div>
+    </AppShell>
   );
 }
