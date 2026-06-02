@@ -1,13 +1,20 @@
 "use client";
 
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Logo } from "@/app/pages/components/dashboard/logo";
 import {
 	Sidebar,
 	SidebarContent,
 	SidebarHeader,
+	SidebarMenu,
+	SidebarMenuItem,
+	SidebarMenuButton,
 } from "@/components/ui/sidebar";
 
 export function AppSidebar() {
+    const pathname = usePathname();
+
 	return (
 		<Sidebar
 			className="static min-h-full border-r"
@@ -20,8 +27,13 @@ export function AppSidebar() {
 				</div>
 			</SidebarHeader>
 			<SidebarContent>
-
-				{/* Hook selection will go here */}
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton asChild isActive={pathname === "/dashboard/use-debounce"}>
+                            <Link href="/dashboard/use-debounce">useDebounce</Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </SidebarMenu>
 			</SidebarContent>
 		</Sidebar>
 	);

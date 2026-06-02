@@ -1,317 +1,91 @@
 "use client"
 
-import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react"
-import { Check, Copy } from "lucide-react"
-import { AnimatePresence, motion } from "motion/react"
-
+import * as React from "react"
 import { cn } from "@/lib/utils"
-
-interface CodeTab {
-  label: string
-  code: string
-  language?: string
-}
+import { Check, Copy } from "lucide-react"
+import { createHighlighter, type Highlighter } from "shiki"
+import { Button } from "@/components/ui/button"
 
 interface CodeBlockProps {
-  tabs?: CodeTab[]
-  code?: string
-  language?: string
-  className?: string
+  code: string
+  language: "tsx" | "bash" | "json"
+  collapsible?: boolean
+  fileName?: string
 }
 
 export function CodeBlock({
-  tabs,
   code,
-  language = "bash",
-  className,
+  language,
+  collapsible = false,
+  fileName,
 }: CodeBlockProps) {
-  const [activeTab, setActiveTab] = useState(0)
-  const [copied, setCopied] = useState(false)
-  const [direction, setDirection] = useState(0)
-  const preRef = useRef<HTMLPreElement>(null)
-  const tabsContainerRef = useRef<HTMLDivElement>(null)
-  const tabRefs = useRef<(HTMLButtonElement | null)[]>([])
-  const [hasOverflow, setHasOverflow] = useState(false)
-  const [indicator, setIndicator] = useState<{
-    left: number
-    width: number
-  } | null>(null)
+  const [highlighter, setHighlighter] = React.useState<Highlighter | null>(null)
+  const [isCopied, setIsCopied] = React.useState(false)
+  const [isExpanded, setIsExpanded] = React.useState(!collapsible)
 
-  const measureIndicator = useCallback(() => {
-    const container = tabsContainerRef.current
-    const activeEl = tabRefs.current[activeTab]
-
-    if (!container || !activeEl) {
-      return
+  React.useEffect(() => {
+    async function init() {
+      const h = await createHighlighter({
+        themes: ["github-dark"],
+        langs: ["tsx", "bash", "json"],
+      })
+      setHighlighter(h)
     }
+    init()
+  }, [])
 
-    const containerRect = container.getBoundingClientRect()
-    const tabRect = activeEl.getBoundingClientRect()
-
-    setIndicator({
-      left: tabRect.left - containerRect.left,
-      width: tabRect.width,
-    })
-  }, [activeTab])
-
-  const codeContent = useMemo(() => {
-    if (tabs && tabs.length > 0) {
-      return tabs
+  const html = React.useMemo(() => {
+    if (highlighter) {
+      return highlighter.codeToHtml(code, { lang: language, theme: "github-dark" })
     }
-    if (code) {
-      return [{ label: language, code, language }]
-    }
-    return []
-  }, [tabs, code, language])
+    return ""
+  }, [highlighter, code, language])
 
-  const currentCode = codeContent[activeTab]?.code || ""
-  const currentLang = codeContent[activeTab]?.language || language
-
-  // Helper to colorize bash installation commands
-  const renderBash = (code: string) => {
-    const parts = code.split(" ")
-    return (
-      <span className="whitespace-pre">
-        <span className="select-none text-zinc-400 dark:text-zinc-600">$ </span>
-        <span className="text-blue-500 dark:text-blue-400">{parts[0]}</span>{" "}
-        <span className="text-amber-600 dark:text-amber-500">{parts[1]}</span>{" "}
-        {parts.slice(2).map((part, i) => (
-          <span key={i}>
-            {part === "add" ? (
-              <span className="text-zinc-500 dark:text-zinc-400">add </span>
-            ) : (
-              <span className="font-semibold text-emerald-600 dark:text-emerald-400">{part}</span>
-            )}
-          </span>
-        ))}
-      </span>
-    )
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(code)
+    setIsCopied(true)
+    setTimeout(() => setIsCopied(false), 2000)
   }
-
-  // Check overflow when tab changes or content updates
-  useLayoutEffect(() => {
-    const checkOverflow = () => {
-      if (preRef.current) {
-        const hasHorizontalOverflow =
-          preRef.current.scrollWidth > preRef.current.clientWidth
-        setHasOverflow(hasHorizontalOverflow)
-      }
-    }
-
-    checkOverflow()
-    const resizeObserver = new ResizeObserver(checkOverflow)
-    if (preRef.current) {
-      resizeObserver.observe(preRef.current)
-    }
-
-    return () => {
-      resizeObserver.disconnect()
-    }
-  }, [activeTab])
-
-  useLayoutEffect(() => {
-    measureIndicator()
-
-    const resizeObserver = new ResizeObserver(measureIndicator)
-    const container = tabsContainerRef.current
-
-    if (container) {
-      resizeObserver.observe(container)
-    }
-
-    for (const tab of tabRefs.current) {
-      if (tab) {
-        resizeObserver.observe(tab)
-      }
-    }
-
-    return () => {
-      resizeObserver.disconnect()
-    }
-  }, [measureIndicator])
-
-  const handleCopy = async () => {
-    await navigator.clipboard.writeText(currentCode)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
-
-  const handleTabChange = (index: number) => {
-    setDirection(index > activeTab ? 1 : -1)
-    setActiveTab(index)
-  }
-
-  if (codeContent.length === 0) return null
 
   return (
-    <div
-      className={cn(
-        "group relative overflow-hidden rounded-2xl border p-0.5",
-        "border-zinc-950/10 dark:border-white/10",
-        "bg-zinc-50 dark:bg-white/5",
-        "text-zinc-950 dark:text-zinc-50",
-        className
-      )}
-    >
-      {/* Tab Bar */}
-      {codeContent.length > 1 && (
-        <div className="flex items-center relative pr-2.5">
-          <div
-            role="tablist"
-            className={cn(
-              "flex-1 min-w-0 text-xs leading-6 rounded-tl-xl gap-1 flex",
-              "overflow-x-auto overflow-y-hidden",
-              "scrollbar-thin scrollbar-thumb-rounded",
-              "scrollbar-thumb-black/15 hover:scrollbar-thumb-black/20",
-              "dark:scrollbar-thumb-white/20 dark:hover:scrollbar-thumb-white/25"
-            )}
-          >
-            <div ref={tabsContainerRef} className="relative flex gap-1">
-              {codeContent.map((tab, index) => (
-                <button
-                  key={`${tab.label}-${index}`}
-                  ref={(element) => {
-                    tabRefs.current[index] = element
-                  }}
-                  type="button"
-                  role="tab"
-                  aria-selected={activeTab === index}
-                  onClick={() => handleTabChange(index)}
-                  className={cn(
-                    "flex items-center relative gap-1.5 my-1 mb-1.5 outline-0",
-                    "whitespace-nowrap font-medium transition-colors duration-150",
-                    "px-1.5 rounded-lg",
-                    "first:ml-2.5",
-                    "hover:bg-zinc-200/50 dark:hover:bg-zinc-700/70",
-                    activeTab === index
-                      ? "text-zinc-950 dark:text-zinc-50"
-                      : "text-zinc-500 dark:text-zinc-400"
-                  )}
-                >
-                  {tab.label}
-                </button>
-              ))}
-              {indicator && (
-                <motion.div
-                  aria-hidden="true"
-                  className="pointer-events-none absolute bottom-0 h-0.5 rounded-full bg-zinc-950 dark:bg-zinc-50"
-                  initial={false}
-                  animate={{
-                    left: indicator.left,
-                    width: indicator.width,
-                  }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 500,
-                    damping: 35,
-                  }}
-                />
-              )}
-            </div>
-          </div>
+    <div className="relative my-6 w-full rounded-xl border bg-zinc-950">
+      {fileName && (
+        <div className="flex items-center justify-between px-4 py-2 text-xs text-zinc-400 border-b border-zinc-800">
+          {fileName}
         </div>
       )}
-
-      {/* Code Content */}
-      <div className="relative overflow-hidden">
-        {/* Copy Button */}
-        <motion.button
-          onClick={handleCopy}
-          whileTap={{ scale: 0.95 }}
-          className={cn(
-            "absolute top-2 right-2 z-10",
-            "flex items-center gap-1.5 px-2 py-1.5 text-xs font-medium rounded-lg",
-            "text-zinc-500 dark:text-zinc-400",
-            "bg-white/80 dark:bg-zinc-950/80 backdrop-blur-sm",
-            "border border-zinc-200/50 dark:border-zinc-800/50",
-            "opacity-70 group-hover:opacity-100",
-            "hover:bg-zinc-200/50 dark:hover:bg-zinc-700/70",
-            "hover:text-zinc-950 dark:hover:text-zinc-50",
-            "transition-all duration-150",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
-          )}
-          aria-label="Copy code"
+      <div className="absolute right-2 top-2 z-10">
+        <Button
+          size="icon"
+          variant="ghost"
+          className="h-8 w-8 text-zinc-400 hover:text-zinc-50"
+          onClick={copyToClipboard}
         >
-          <span className="relative size-3.5">
-            <motion.div
-              initial={false}
-              animate={{
-                scale: copied ? 0 : 1,
-                opacity: copied ? 0 : 1,
-                rotate: copied ? 90 : 0,
-              }}
-              transition={{ duration: 0.2 }}
-              className="absolute inset-0"
-            >
-              <Copy className="size-full" />
-            </motion.div>
-            <motion.div
-              initial={false}
-              animate={{
-                scale: copied ? 1 : 0,
-                opacity: copied ? 1 : 0,
-                rotate: copied ? 0 : -90,
-              }}
-              transition={{ duration: 0.2 }}
-              className="absolute inset-0"
-            >
-              <Check className="size-full" />
-            </motion.div>
-          </span>
-          <span>{copied ? "Copied" : "Copy"}</span>
-        </motion.button>
-        <pre
-          ref={preRef}
-          className={cn(
-            "p-4 text-sm leading-relaxed m-0",
-            "bg-white dark:bg-zinc-950/50",
-            codeContent.length > 1 ? "rounded-b-2xl" : "rounded-2xl",
-            hasOverflow ? "overflow-x-auto" : "overflow-x-hidden",
-            hasOverflow && "scrollbar-thin scrollbar-thumb-rounded",
-            hasOverflow &&
-              "scrollbar-thumb-black/15 hover:scrollbar-thumb-black/20",
-            hasOverflow &&
-              "dark:scrollbar-thumb-white/20 dark:hover:scrollbar-thumb-white/25",
-            hasOverflow && "[&::-webkit-scrollbar]:h-2",
-            hasOverflow && "[&::-webkit-scrollbar-thumb]:rounded-full",
-            hasOverflow && "[&::-webkit-scrollbar-thumb]:bg-black/15",
-            hasOverflow && "[&::-webkit-scrollbar-thumb]:dark:bg-white/20",
-            hasOverflow && "[&::-webkit-scrollbar-thumb:hover]:bg-black/20",
-            hasOverflow &&
-              "[&::-webkit-scrollbar-thumb:hover]:dark:bg-white/25",
-            hasOverflow && "[&::-webkit-scrollbar-track]:bg-transparent"
-          )}
-        >
-          <AnimatePresence mode="wait" initial={false} custom={direction}>
-            <motion.code
-              key={activeTab}
-              custom={direction}
-              initial={{
-                opacity: 0,
-                x: direction > 0 ? 20 : -20,
-                filter: "blur(4px)",
-              }}
-              animate={{
-                opacity: 1,
-                x: 0,
-                filter: "blur(0px)",
-              }}
-              exit={{
-                opacity: 0,
-                x: direction > 0 ? -20 : 20,
-                filter: "blur(4px)",
-              }}
-              transition={{
-                duration: 0.15,
-                ease: "easeOut",
-              }}
-              className="font-mono text-zinc-950 dark:text-zinc-50 block whitespace-pre"
-            >
-              {currentLang === "bash" ? renderBash(currentCode) : currentCode}
-            </motion.code>
-          </AnimatePresence>
-        </pre>
+          {isCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+        </Button>
       </div>
+      <div
+        className={cn(
+          "overflow-hidden transition-all duration-200",
+          collapsible && !isExpanded ? "max-h-30" : "max-h-162.5"
+        )}
+      >
+        <div 
+          className="p-4 overflow-x-auto"
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
+      </div>
+      {collapsible && (
+        <div className="border-t border-zinc-800 p-2 text-center">
+          <Button
+            variant="ghost"
+            className="h-8 text-xs text-zinc-400 hover:text-zinc-50"
+            onClick={() => setIsExpanded(!isExpanded)}
+          >
+            {isExpanded ? "Collapse" : "Expand"}
+          </Button>
+        </div>
+      )}
     </div>
   )
 }
