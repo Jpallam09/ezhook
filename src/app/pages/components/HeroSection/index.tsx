@@ -29,7 +29,7 @@ export function HeroSection() {
         <SlideTextButton 
           text="Browse Hooks" 
           hoverText="Search Registry" 
-          href="/dashboard"
+          href="/docs/use-debounce"
         />
       </nav>
     </section>

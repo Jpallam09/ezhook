@@ -512,6 +512,11 @@ function SidebarMenuButton({
 } & VariantProps<typeof sidebarMenuButtonVariants> &
   React.ComponentProps<"button">) {
   const { isMobile, state } = useSidebar()
+  
+  // Explicitly remove asChild from props to prevent prop drilling to DOM
+  const restProps = { ...props };
+  delete (restProps as any).asChild;
+
   const comp = useRender({
     asChild,
     defaultTagName: "button",
@@ -519,7 +524,7 @@ function SidebarMenuButton({
       {
         className: cn(sidebarMenuButtonVariants({ variant, size }), className),
       },
-      props
+      restProps
     ),
     render: !tooltip ? render : <TooltipTrigger render={render} />,
     state: {
