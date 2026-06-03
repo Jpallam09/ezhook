@@ -1,13 +1,10 @@
 "use client";
-
 import { useState } from "react";
 import { PackageManagerToggle, PackageManager } from "@/components/package-manager-toggle";
 import { InstallCodeBlock } from "@/components/install-code-block";
 import { CodeBlockWrapper } from "@/components/code-block-wrapper";
 import { cn } from "@/lib/utils";
-import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Separator } from "@/components/ui/separator";
 
 interface HookData {
   name: string;
@@ -26,41 +23,53 @@ export function InstallContainer({
 
   const getCommand = (mgr: PackageManager) => {
     switch (mgr) {
-      case "npm": return `npm ezhook@latest add ${hook.name}`;
+      case "npm":  return `npm ezhook@latest add ${hook.name}`;
       case "pnpm": return `pnpm ezhook@latest add ${hook.name}`;
       case "yarn": return `yarn dlx ezhook@latest add ${hook.name}`;
-      case "bun": return `bun ezhook@latest add ${hook.name}`;
+      case "bun":  return `bun ezhook@latest add ${hook.name}`;
     }
   };
 
   return (
-    <div className={cn("max-w-2xl mx-auto w-full", className)}>
-      <Card>
-        <Tabs defaultValue="cli" className="w-full">
-          <div className="flex items-center justify-between px-6 pt-4">
-            <TabsList variant="line">
-              <TabsTrigger value="cli">CLI</TabsTrigger>
-              <TabsTrigger value="manual">Manual</TabsTrigger>
-            </TabsList>
-          </div>
-          <Separator className="mt-2" />
-          <CardContent className="pt-4 pb-4">
-            <TabsContent value="cli" className="mt-0">
-              <div className="flex items-center justify-end mb-2">
-                <PackageManagerToggle selected={manager} onSelect={setManager} />
-              </div>
+    <div className={cn("w-full", className)}>
+      <Tabs defaultValue="cli" className="w-full">
+        {/* Tab bar row */}
+        <div className="flex items-center justify-between border-b border-border/50 px-1">
+          <TabsList variant="line" className="gap-1">
+            <TabsTrigger value="cli">CLI</TabsTrigger>
+            <TabsTrigger value="manual">Manual</TabsTrigger>
+          </TabsList>
+        </div>
+
+        {/* CLI tab */}
+        <TabsContent value="cli" className="mt-0">
+          <div className="rounded-b-lg border border-t-0 border-border/50 bg-muted/30">
+            {/* Package manager toggle — sits in its own slim toolbar */}
+            <div className="flex items-center justify-end px-4 py-2 border-b border-border/40">
+              <PackageManagerToggle selected={manager} onSelect={setManager} />
+            </div>
+            {/* Command */}
+            <div className="px-4 py-3">
               <InstallCodeBlock code={getCommand(manager)} />
-            </TabsContent>
-            <TabsContent value="manual" className="mt-0">
-              <CodeBlockWrapper>
-                <p className="text-sm text-muted-foreground p-4">
-                  Manual installation steps for {hook.name} will be here.
-                </p>
-              </CodeBlockWrapper>
-            </TabsContent>
-          </CardContent>
-        </Tabs>
-      </Card>
+            </div>
+          </div>
+        </TabsContent>
+
+        {/* Manual tab */}
+        <TabsContent value="manual" className="mt-0">
+          <div className="rounded-b-lg border border-t-0 border-border/50 bg-muted/30">
+            <CodeBlockWrapper>
+              <p className="text-sm text-muted-foreground px-4 py-4">
+                Manual installation steps for{" "}
+                <code className="font-mono text-foreground/80 text-[12px] bg-accent px-1.5 py-0.5 rounded">
+                  {hook.name}
+                </code>{" "}
+                will be here.
+              </p>
+            </CodeBlockWrapper>
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
