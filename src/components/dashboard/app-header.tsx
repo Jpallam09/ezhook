@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { SearchIcon } from "lucide-react";
-import { SearchDialog } from "@/app/pages/components/dashboard/SearchDialog";
+import { SearchDialog } from "@/components/dashboard/SearchDialog";
 import { Kbd } from "@/components/ui/kbd";
 
 export function AppHeader() {

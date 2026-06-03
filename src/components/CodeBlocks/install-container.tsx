@@ -1,8 +1,8 @@
 "use client";
 import { useState } from "react";
-import { PackageManagerToggle, PackageManager } from "@/components/package-manager-toggle";
-import { InstallCodeBlock } from "@/components/install-code-block";
-import { CodeBlockWrapper } from "@/components/code-block-wrapper";
+import { PackageManagerToggle, PackageManager } from "@/components/CodeBlocks/package-manager-toggle";
+import { InstallCodeBlock } from "@/components/CodeBlocks/install-code-block";
+import { CodeBlockWrapper } from "@/components/CodeBlocks/code-block-wrapper";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 

@@ -1,6 +1,6 @@
 import type React from "react";
 import Image from "next/image";
-import logoImg from "../../../../../public/ezhook-dashboard-logo.ico";
+import logoImg from "../../../public/ezhook-dashboard-logo.ico";
 import { cn } from "@/lib/utils";
 
 /**

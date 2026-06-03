@@ -1,9 +1,9 @@
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { FullWidthDivider } from "@/app/pages/components/dashboard/full-width-divider";
-import { AppHeader } from "@/app/pages/components/dashboard/app-header";
-import { AppSidebar } from "@/app/pages/components/dashboard/app-sidebar";
-import { AppRightSidebar } from "@/app/pages/components/dashboard/app-right-sidebar";
-import { Main } from "@/app/pages/components/dashboard/Main";
+import { FullWidthDivider } from "@/components/dashboard/full-width-divider";
+import { AppHeader } from "@/components/dashboard/app-header";
+import { AppSidebar } from "@/components/dashboard/app-sidebar";
+import { AppRightSidebar } from "@/components/dashboard/app-right-sidebar";
+import { Main } from "@/components/dashboard/Main";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
 	return (
