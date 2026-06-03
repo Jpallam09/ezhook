@@ -14,36 +14,22 @@ import {
   SidebarGroupContent,
 } from "@/components/ui/sidebar";
 
-const hooks = [
-  { href: "/docs/use-debounce", label: "useDebounce" },
-  { href: "#", label: "useBoolean" },
-  { href: "#", label: "useLocalStorage" },
-  { href: "#", label: "useToggle" },
-  { href: "#", label: "useCopyToClipboard" },
-  { href: "#", label: "useUnmount" },
-  { href: "#", label: "useDebounceCallback" },
-  { href: "#", label: "useIsomorphicLayoutEffect" },
-  { href: "#", label: "useInterval" },
-  { href: "#", label: "useTimeout" },
-  { href: "#", label: "useDocumentTitle" },
-  { href: "#", label: "useCounter" },
-  { href: "#", label: "useMousePosition" },
-  { href: "#", label: "useWindowSize" },
-  { href: "#", label: "useScrollPosition" },
-  { href: "#", label: "useHover" },
-  { href: "#", label: "useLockBodyScroll" },
-  { href: "#", label: "useEventListener" },
-  { href: "#", label: "useIntersectionObserver" },
-  { href: "#", label: "useLocalStorageState" },
-  { href: "#", label: "useMediaQuery" },
-  { href: "#", label: "useNetworkStatus" },
-];
+import { registry, CATEGORIES, HookCategory } from "@/registry";
 
 export function AppSidebar() {
   const pathname = usePathname();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [fadeTop, setFadeTop] = useState(false);
   const [fadeBottom, setFadeBottom] = useState(false);
+
+  // Group hooks by category
+  const groupedHooks = Object.values(registry).reduce((acc, hook) => {
+    if (!acc[hook.category]) {
+      acc[hook.category] = [];
+    }
+    acc[hook.category].push(hook);
+    return acc;
+  }, {} as Record<HookCategory, typeof registry[string][]>);
 
   const updateFades = () => {
     const el = scrollRef.current;
@@ -72,11 +58,11 @@ export function AppSidebar() {
       variant="sidebar"
     >
       {/* Header */}
-    <div className="h-14 flex items-center px-4 border-b border-border/40 shrink-0">
-      <Link href="/" className="flex items-center gap-2">
-        <Logo />
-      </Link>
-    </div>
+      <div className="h-14 flex items-center px-4 border-b border-border/40 shrink-0">
+        <Link href="/" className="flex items-center gap-2">
+          <Logo />
+        </Link>
+      </div>
 
       {/* Scroll container with fades */}
       <div className="relative flex-1 min-h-0 overflow-hidden">
@@ -91,48 +77,66 @@ export function AppSidebar() {
           ref={scrollRef}
           className="h-full overflow-y-auto px-2 py-3 scrollbar-none"
         >
-          <SidebarGroup>
-            <SidebarGroupLabel className="px-3 mb-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
-              Hooks
-            </SidebarGroupLabel>
+          {Object.entries(CATEGORIES).map(([category, label]) => {
+            const categoryHooks = groupedHooks[category as HookCategory];
+            if (!categoryHooks || categoryHooks.length === 0) return null;
 
-            <SidebarGroupContent>
-              <SidebarMenu className="gap-0.5">
-                {hooks.map(({ href, label }) => {
-                  const isActive = pathname === href;
-                  return (
-                    <SidebarMenuItem key={label}>
-                      <SidebarMenuButton
-                        asChild
-                        isActive={isActive}
-                        className={[
-                          "group relative w-full rounded-md px-3 py-2 text-sm font-medium transition-all duration-150",
-                          "text-muted-foreground hover:text-foreground hover:bg-accent/60",
-                          isActive
-                            ? "bg-accent text-foreground font-semibold shadow-sm"
-                            : "",
-                        ]
-                          .filter(Boolean)
-                          .join(" ")}
-                      >
-                        <Link href={href} className="flex items-center gap-2.5">
-                          {isActive && (
-                            <span
-                              aria-hidden
-                              className="absolute left-0 top-1/2 -translate-y-1/2 h-4 w-0.5 rounded-r-full bg-primary"
-                            />
-                          )}
-                          <span className="font-mono text-[13px] tracking-tight">
-                            {label}
-                          </span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                })}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
+            return (
+              <SidebarGroup key={category}>
+                <SidebarGroupLabel className="px-3 mb-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
+                  {label}
+                </SidebarGroupLabel>
+
+                <SidebarGroupContent>
+                  <SidebarMenu className="gap-0.5">
+                    {categoryHooks.map((hook) => {
+                      const href = `/docs/${hook.slug}`;
+                      const isActive = pathname === href;
+                      return (
+                        <SidebarMenuItem key={hook.slug}>
+                          <SidebarMenuButton
+                            asChild
+                            isActive={isActive}
+                            className={[
+                              "group relative w-full rounded-md px-3 py-2 text-sm font-medium transition-all duration-150",
+                              "text-muted-foreground hover:text-foreground hover:bg-accent/60",
+                              isActive
+                                ? "bg-accent text-foreground font-semibold shadow-sm"
+                                : "",
+                            ]
+                              .filter(Boolean)
+                              .join(" ")}
+                          >
+                            <Link
+                              href={href}
+                              className="flex items-center justify-between gap-2.5"
+                            >
+                              <div className="flex items-center gap-2.5">
+                                {isActive && (
+                                  <span
+                                    aria-hidden
+                                    className="absolute left-0 top-1/2 -translate-y-1/2 h-4 w-0.5 rounded-r-full bg-primary"
+                                  />
+                                )}
+                                <span className="font-mono text-[13px] tracking-tight">
+                                  {hook.name}
+                                </span>
+                              </div>
+                              {hook.status && (
+                                <span className="text-[9px] font-bold uppercase tracking-tight bg-primary/10 text-primary px-1.5 py-0.5 rounded border border-primary/20 leading-none">
+                                  {hook.status}
+                                </span>
+                              )}
+                            </Link>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      );
+                    })}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            );
+          })}
         </SidebarContent>
 
         {/* Bottom fade */}

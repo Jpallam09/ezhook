@@ -506,11 +506,11 @@ function SidebarMenuButton({
   className,
   ...props
 }: {
-    asChild?: boolean
-    isActive?: boolean
-    tooltip?: string | React.ComponentProps<typeof TooltipContent>
+  asChild?: boolean
+  isActive?: boolean
+  tooltip?: string | React.ComponentProps<typeof TooltipContent>
 } & VariantProps<typeof sidebarMenuButtonVariants> &
-  React.ComponentProps<"button">) {
+  useRender.ComponentProps<"button">) {
   const { isMobile, state } = useSidebar()
   
   // Explicitly remove asChild from props to prevent prop drilling to DOM
@@ -518,7 +518,6 @@ function SidebarMenuButton({
   delete (restProps as any).asChild;
 
   const comp = useRender({
-    asChild,
     defaultTagName: "button",
     props: mergeProps<"button">(
       {
