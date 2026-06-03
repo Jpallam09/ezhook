@@ -5,7 +5,7 @@ import { AppSidebar } from "@/components/dashboard/app-sidebar";
 import { AppRightSidebar } from "@/components/dashboard/app-right-sidebar";
 import { Main } from "@/components/dashboard/Main";
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+export function AppShell({ children, mainClassName }: { children: React.ReactNode; mainClassName?: string }) {
 	return (
 		<div className="overflow-hidden">
 			<SidebarProvider className="relative h-svh w-full">
@@ -13,7 +13,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 				<AppSidebar />
 				<SidebarInset>
 					<AppHeader />
-					<Main>{children}</Main>
+					<Main mainClassName={mainClassName}>{children}</Main>
 				</SidebarInset>
 				<AppRightSidebar />
 			</SidebarProvider>

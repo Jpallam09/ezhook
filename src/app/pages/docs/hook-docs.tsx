@@ -17,7 +17,6 @@ export function HookDocs({ hook }: HookDocsProps) {
           <p className="text-xs font-mono text-muted-foreground/50 tracking-widest uppercase mb-6">
             Hooks / {CATEGORIES[hook.category]}
           </p>
-          <h1>qwertyuiop</h1>
           {/* Title + description */}
           <div className="flex items-center gap-4 mb-3">
             <h1 id="title" className="text-4xl font-extrabold tracking-tight">
