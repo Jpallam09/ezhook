@@ -29,4 +29,8 @@ export interface Hook {
   status?: "new" | "experimental" | "deprecated";
   api: ApiRow[];
   examples: Example[];
+  sourceCode: {
+    hook: { code: string; fileName: string };
+    types?: { code: string; fileName: string };
+  };
 }

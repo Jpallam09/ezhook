@@ -2,15 +2,13 @@
 import { useState } from "react";
 import { PackageManagerToggle, PackageManager } from "@/components/CodeBlocks/package-manager-toggle";
 import { InstallCodeBlock } from "@/components/CodeBlocks/install-code-block";
-import { CodeBlockWrapper } from "@/components/CodeBlocks/code-block-wrapper";
+import { ManualTabContent } from "@/components/CodeBlocks/manual-tab-content";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Hook } from "@/registry/schema";
 
-interface HookData {
-  name: string;
-  description: string;
-  usage: string;
-}
+interface HookData extends Hook {}
+
 
 export function InstallContainer({
   hook,
@@ -58,15 +56,7 @@ export function InstallContainer({
         {/* Manual tab */}
         <TabsContent value="manual" className="mt-0">
           <div className="rounded-b-lg border border-t-0 border-border/50 bg-muted/30">
-            <CodeBlockWrapper>
-              <p className="text-sm text-muted-foreground px-4 py-4">
-                Manual installation steps for{" "}
-                <code className="font-mono text-foreground/80 text-[12px] bg-accent px-1.5 py-0.5 rounded">
-                  {hook.name}
-                </code>{" "}
-                will be here.
-              </p>
-            </CodeBlockWrapper>
+            <ManualTabContent sourceCode={hook.sourceCode} />
           </div>
         </TabsContent>
       </Tabs>

@@ -30,4 +30,19 @@ export function ToggleComponent() {
       code: `// ... code here`,
     },
   ],
+  sourceCode: {
+    hook: {
+      fileName: "use-boolean.ts",
+      code: `import { useState, useCallback } from 'react';
+
+export function useBoolean(defaultValue = false): [boolean, { toggle: () => void; setTrue: () => void; setFalse: () => void }] {
+  const [value, setValue] = useState(defaultValue);
+  const toggle = useCallback(() => setValue((v) => !v), []);
+  const setTrue = useCallback(() => setValue(true), []);
+  const setFalse = useCallback(() => setValue(false), []);
+  return [value, { toggle, setTrue, setFalse }];
+}
+`
+    }
+  },
 };

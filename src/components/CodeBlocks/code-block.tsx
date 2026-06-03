@@ -3,7 +3,8 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 import { Check, Copy, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import { createHighlighter, type Highlighter } from "shiki";
+import { getHighlighter } from "@/lib/shiki";
+import { type Highlighter } from "shiki";
 
 interface CodeBlockProps {
   code: string;
@@ -24,10 +25,7 @@ export function CodeBlock({
 
   React.useEffect(() => {
     async function init() {
-      const h = await createHighlighter({
-        themes: ["github-dark"],
-        langs: ["tsx", "bash", "json"],
-      });
+      const h = await getHighlighter();
       setHighlighter(h);
     }
     init();
