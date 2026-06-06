@@ -3,6 +3,7 @@
 import * as React from "react"
 import { mergeProps } from "@base-ui/react/merge-props"
 import { useRender } from "@base-ui/react/use-render"
+import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
 
 import { useIsMobile } from "@/hooks/use-mobile"
@@ -512,9 +513,9 @@ function SidebarMenuButton({
   useRender.ComponentProps<"button">) {
   const { isMobile, state } = useSidebar()
   
-  // asChild is not used directly, just needs to be removed from DOM
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { asChild: _asChild, ...restProps } = props;
+  const { asChild = false, ...restProps } = props;
+
+  const resolvedRender = asChild ? <Slot /> : render;
 
   const comp = useRender({
     defaultTagName: "button",
@@ -524,7 +525,7 @@ function SidebarMenuButton({
       },
       restProps
     ),
-    render: !tooltip ? render : <TooltipTrigger render={render} />,
+    render: !tooltip ? resolvedRender : <TooltipTrigger render={resolvedRender} />,
     state: {
       slot: "sidebar-menu-button",
       sidebar: "menu-button",

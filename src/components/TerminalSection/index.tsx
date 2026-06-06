@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
-import { Separator } from "@/components/ui/separator";
 
 // Terminal output palette — always dark, these are terminal colors not UI colors
 const ACC = "#6FF7CC";
@@ -251,40 +250,42 @@ export function TerminalSection() {
       </div>
 
       {/* Step indicators */}
-      <div className="mt-10 flex w-full max-w-sm items-center justify-center border-t pt-7">
-        {TAB_KEYS.map((key, idx) => {
-          const isActive = activeTab === key;
-          return (
-            <div key={key} className="flex items-center">
-              <button
-                onClick={() => setActiveTab(key)}
-                className="flex flex-col items-center gap-1.5 px-2"
-              >
-                <div
-                  className={cn(
-                    "flex h-7 w-7 items-center justify-center rounded-full border font-mono text-[11px] transition-all duration-200",
-                    isActive
-                      ? "border-foreground bg-foreground text-background"
-                      : "border-border text-muted-foreground"
-                  )}
+      <div className="mt-10 flex w-full max-w-sm justify-center border-t pt-7 pb-6">
+        <div className="flex items-center">
+          {TAB_KEYS.map((key, idx) => {
+            const isActive = activeTab === key;
+            return (
+              <div key={key} className="flex items-center">
+                <button
+                  onClick={() => setActiveTab(key)}
+                  className="relative flex flex-col items-center"
                 >
-                  {idx + 1}
-                </div>
-                <span
-                  className={cn(
-                    "font-mono text-[11px] transition-colors duration-200",
-                    isActive ? "text-foreground" : "text-muted-foreground"
-                  )}
-                >
-                  {STEP_LABELS[key]}
-                </span>
-              </button>
-              {idx < TAB_KEYS.length - 1 && (
-                <Separator className="w-8 shrink-0" />
-              )}
-            </div>
-          );
-        })}
+                  <div
+                    className={cn(
+                      "flex h-7 w-7 items-center justify-center rounded-full border font-mono text-[11px] transition-all duration-200 bg-background",
+                      isActive
+                        ? "border-foreground bg-foreground text-background"
+                        : "border-border text-muted-foreground"
+                    )}
+                  >
+                    {idx + 1}
+                  </div>
+                  <span
+                    className={cn(
+                      "absolute top-8 left-1/2 -translate-x-1/2 font-mono text-[11px] transition-colors duration-200 whitespace-nowrap",
+                      isActive ? "text-foreground" : "text-muted-foreground"
+                    )}
+                  >
+                    {STEP_LABELS[key]}
+                  </span>
+                </button>
+                {idx < TAB_KEYS.length - 1 && (
+                  <div className="mx-2 h-px w-8 bg-border shrink-0" />
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
     </section>
   );
