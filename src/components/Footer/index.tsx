@@ -1,57 +1,55 @@
-import { BookOpen, Home, Zap } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
-import { Button } from "@/components/ui/button";
+"use client";
 
-const NAV_LINKS = [
-  { label: "Home", href: "/", icon: Home },
-  { label: "Docs", href: "/docs", icon: BookOpen },
-  { label: "Hooks", href: "/hooks", icon: Zap },
+import Link from "next/link";
+import { Separator } from "@/components/ui/separator";
+
+const LINKS = [
+  { label: "GitHub", href: "https://github.com" },
+  { label: "Twitter", href: "https://twitter.com" },
+  { label: "MIT License", href: "/license" },
 ];
 
-export const Footer = () => {
-  const currentYear = new Date().getFullYear();
-
+export function Footer() {
   return (
-    <footer className="w-full bg-background">
-      <Separator className="bg-white/10" />
-      <div className="container mx-auto px-6 py-8">
-        <section className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+    <footer className="w-full border-t bg-background">
+      <div className="flex h-12 items-center justify-between px-6">
+        {/* Logo + copyright */}
+        <div className="flex items-center gap-2">
+          <div className="flex h-4 w-4 items-center justify-center rounded-lg bg-foreground">
+            <svg width="9" height="9" viewBox="0 0 13 13" fill="none">
+              <path
+                d="M2 11L6.5 2L11 11"
+                stroke="hsl(var(--background))"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M3.5 8.5H9.5"
+                stroke="hsl(var(--background))"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+              />
+            </svg>
+          </div>
+          <span className="text-xs text-muted-foreground">© 2026 ezhook</span>
+        </div>
 
-          {/* Brand */}
-          <article className="flex flex-col gap-1">
-            <h2 className="font-mono text-sm font-semibold tracking-tight text-foreground">
-              ezhook<span className="text-primary">.</span>
-            </h2>
-            <p className="font-mono text-xs text-muted-foreground">
-              Built for developers, by a developer.
-            </p>
-          </article>
-
-          {/* Nav Links */}
-          <nav className="flex items-center gap-1">
-            {NAV_LINKS.map(({ label, href, icon: Icon }) => (
-              <Button
-                key={label}
-                variant="ghost"
-                size="sm"
-                className="h-7 gap-1.5 px-2 font-mono text-xs text-muted-foreground hover:text-foreground"
-                onClick={() => window.location.href = href}
+        {/* Links */}
+        <nav className="flex items-center gap-1">
+          {LINKS.map((link, i) => (
+            <div key={link.label} className="flex items-center gap-1">
+              {i > 0 && <Separator orientation="vertical" className="h-3" />}
+              <Link
+                href={link.href}
+                className="rounded px-2 py-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
               >
-                <Icon size={12} />
-                {label}
-              </Button>
-            ))}
-          </nav>
-        </section>
-
-        {/* Bottom bar */}
-        <Separator className="my-4 bg-white/5" />
-        <section>
-          <p className="font-mono text-xs text-muted-foreground/50">
-            © {currentYear} ezhook. All rights reserved.
-          </p>
-        </section>
+                {link.label}
+              </Link>
+            </div>
+          ))}
+        </nav>
       </div>
     </footer>
   );
-};
+}

@@ -11,7 +11,7 @@ export default function LandingPage() {
       <Navbar />
       <HeroSection />
       <TerminalSection />
-      <Footer/>
+      <Footer />
     </div>
   );
 }

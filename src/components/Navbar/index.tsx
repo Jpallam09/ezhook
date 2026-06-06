@@ -1,79 +1,65 @@
 "use client";
+
 import Link from "next/link";
-import Image from "next/image";
-import { Search } from "lucide-react";
-import { Kbd, KbdGroup } from "@/components/ui/kbd";
-import { Input } from "@/components/ui/input";
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+
+const NAV_LINKS = [
+  { label: "Docs", href: "/docs" },
+  { label: "Registry", href: "/docs/use-debounce" },
+  { label: "Blog", href: "/blog" },
+];
 
 export function Navbar() {
   return (
-    <header className="z-50 w-full border-b border-white/10 bg-white/5 backdrop-blur-xl shadow-[inset_0_-1px_0_rgba(255,255,255,0.06),0_4px_24px_rgba(0,0,0,0.15)]">
-      <div className="container flex h-16 items-center justify-between">
-        <Link href="/">
-          <Image src="/f-ezhook-logo-1.png" alt="Logo" width={130} height={35} priority />
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
+      <div className="flex h-12 items-center gap-4 px-6">
+        {/* Logo */}
+        <Link href="/" className="flex items-center gap-2 shrink-0">
+          <div className="flex h-5 w-5 items-center justify-center rounded-lg bg-foreground">
+            <svg width="11" height="11" viewBox="0 0 13 13" fill="none">
+              <path
+                d="M2 11L6.5 2L11 11"
+                stroke="hsl(var(--background))"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M3.5 8.5H9.5"
+                stroke="hsl(var(--background))"
+                strokeWidth="1.4"
+                strokeLinecap="round"
+              />
+            </svg>
+          </div>
+          <span className="text-sm font-semibold tracking-tight">ezhook</span>
         </Link>
 
-        {/* Right side: nav + search together */}
-        <div className="flex items-center gap-2">
+        <Separator orientation="vertical" className="h-4" />
 
-                    {/* Search bar flush to the nav */}
-          <div className="relative flex items-center h-9 w-48">
-            <Search className="absolute left-2.5 h-3.5 w-3.5 text-white/40" />
-            <Input 
-              placeholder="Search..." 
-              className="pl-8 pr-12 h-full text-[13px] bg-white/6 border-white/10t-white/70 placeholder:text-white/40" 
-            />
-            <div className="absolute right-2.5">
-              <KbdGroup>
-                <Kbd>⌘</Kbd>
-                <Kbd>K</Kbd>
-              </KbdGroup>
-            </div>
-          </div>
-          <NavigationMenu>
-            <NavigationMenuList>
-              <NavigationMenuItem>
-                <NavigationMenuTrigger className="bg-transparent text-white/70 hover:bg-white/[0.07] hover:text-white data-[state=open]:bg-white/[0.07] data-[state=open]:text-white">
-                  Features
-                </NavigationMenuTrigger>
-                <NavigationMenuContent className="bg-slate-950/80 backdrop-blur-xl border border-white/8ow-[inset_0_1px_0_rgba(255,255,255,0.06),0_16px_48px_rgba(0,0,0,0.4)] rounded-xl">
-                  <ul className="grid w-100 gap-3 p-4">
-                    <li>
-                      <NavigationMenuLink href="/components" className="text-white/70 hover:text-white hover:bg-white/[0.07]">
-                        Components
-                      </NavigationMenuLink>
-                    </li>
-                    <li>
-                      <NavigationMenuLink href="/templates" className="text-white/70 hover:text-white hover:bg-white/[0.07]">
-                        Templates
-                      </NavigationMenuLink>
-                    </li>
-                    <li>
-                      <NavigationMenuLink href="/blocks" className="text-white/70 hover:text-white hover:bg-white/[0.07]">
-                        Blocks
-                      </NavigationMenuLink>
-                    </li>
-                  </ul>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
+        {/* Nav links */}
+        <nav className="hidden items-center gap-1 md:flex">
+          {NAV_LINKS.map((link) => (
+            <Link
+              key={link.label}
+              href={link.href}
+              className="rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
 
-              <NavigationMenuItem>
-                <NavigationMenuLink href="/docs" className="text-white/70 hover:text-white hover:bg-white/[0.07]">
-                  Docs
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-            </NavigationMenuList>
-          </NavigationMenu>
+        {/* Right actions */}
+        <div className="ml-auto flex items-center gap-2">
+          <Button variant="ghost" size="sm" className="text-muted-foreground" asChild>
+            <Link href="/login">Log in</Link>
+          </Button>
+          <Button size="sm" asChild>
+            <Link href="/docs/use-debounce">Get started</Link>
+          </Button>
         </div>
-
       </div>
     </header>
   );
