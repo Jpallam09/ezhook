@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Hook } from "@/registry/schema";
 
-interface HookData extends Hook {}
+type HookData = Hook;
 
 
 export function InstallContainer({

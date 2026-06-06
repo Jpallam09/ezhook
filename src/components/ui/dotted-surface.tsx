@@ -49,7 +49,6 @@ export function DottedSurface({ className, ...props }: DottedSurfaceProps) {
 		containerRef.current.appendChild(renderer.domElement);
 
 		// Create particles
-		const particles: THREE.Points[] = [];
 		const positions: number[] = [];
 		const colors: number[] = [];
 
@@ -91,7 +90,7 @@ export function DottedSurface({ className, ...props }: DottedSurfaceProps) {
 		scene.add(points);
 
 		let count = 0;
-		let animationId: number;
+		let animationId = 0;
 
 		// Animation function
 		const animate = () => {
@@ -118,7 +117,7 @@ export function DottedSurface({ className, ...props }: DottedSurfaceProps) {
 
 			// Update point sizes based on wave
 			const customMaterial = material as THREE.PointsMaterial & {
-				uniforms?: any;
+				uniforms?: Record<string, unknown>;
 			};
 			if (!customMaterial.uniforms) {
 				// For dynamic size changes, we'd need a custom shader
@@ -151,6 +150,8 @@ export function DottedSurface({ className, ...props }: DottedSurfaceProps) {
 			count,
 		};
 
+		const container = containerRef.current;
+
 		// Cleanup function
 		return () => {
 			window.removeEventListener('resize', handleResize);
@@ -159,21 +160,21 @@ export function DottedSurface({ className, ...props }: DottedSurfaceProps) {
 				cancelAnimationFrame(sceneRef.current.animationId);
 
 				// Clean up Three.js objects
-				sceneRef.current.scene.traverse((object) => {
+				sceneRef.current.scene.traverse((object: THREE.Object3D) => {
 					if (object instanceof THREE.Points) {
 						object.geometry.dispose();
 						if (Array.isArray(object.material)) {
-							object.material.forEach((material) => material.dispose());
+							object.material.forEach((material: THREE.Material) => material.dispose());
 						} else {
-							object.material.dispose();
+							(object.material as THREE.Material).dispose();
 						}
 					}
 				});
 
 				sceneRef.current.renderer.dispose();
 
-				if (containerRef.current && sceneRef.current.renderer.domElement) {
-					containerRef.current.removeChild(
+				if (container && sceneRef.current.renderer.domElement) {
+					container.removeChild(
 						sceneRef.current.renderer.domElement,
 					);
 				}

@@ -497,7 +497,6 @@ const sidebarMenuButtonVariants = cva(
 )
 
 function SidebarMenuButton({
-  asChild = false,
   render,
   isActive = false,
   variant = "default",
@@ -513,9 +512,9 @@ function SidebarMenuButton({
   useRender.ComponentProps<"button">) {
   const { isMobile, state } = useSidebar()
   
-  // Explicitly remove asChild from props to prevent prop drilling to DOM
-  const restProps = { ...props };
-  delete (restProps as any).asChild;
+  // asChild is not used directly, just needs to be removed from DOM
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { asChild: _asChild, ...restProps } = props;
 
   const comp = useRender({
     defaultTagName: "button",
