@@ -18,13 +18,19 @@ export function InstallContainer({
   className?: string;
 }) {
   const [manager, setManager] = useState<PackageManager>("npm");
+  const registryUrl = "https://ezhook.vercel.app";
 
   const getCommand = (mgr: PackageManager) => {
+    const addCommand = `${registryUrl}/r/${hook.slug}`;
     switch (mgr) {
-      case "npm":  return `npm ezhook@latest add ${hook.name}`;
-      case "pnpm": return `pnpm ezhook@latest add ${hook.name}`;
-      case "yarn": return `yarn dlx ezhook@latest add ${hook.name}`;
-      case "bun":  return `bun ezhook@latest add ${hook.name}`;
+      case "npm":
+        return `npx shadcn@latest add "${addCommand}"`;
+      case "pnpm":
+        return `pnpm dlx shadcn@latest add "${addCommand}"`;
+      case "yarn":
+        return `yarn dlx shadcn@latest add "${addCommand}"`;
+      case "bun":
+        return `bunx shadcn@latest add "${addCommand}"`;
     }
   };
 

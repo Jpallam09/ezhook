@@ -1,6 +1,8 @@
 import { getRegistryItem } from "@/lib/registry";
 import { NextResponse } from "next/server";
 
+export const runtime = "nodejs";
+
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ name: string }> }

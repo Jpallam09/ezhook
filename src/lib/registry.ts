@@ -16,6 +16,7 @@ export interface RegistryItem {
     type: "registry:hook";
   }>;
   dependencies: string[];
+  devDependencies: string[];
   registryDependencies: string[];
   tailwind: Record<string, unknown>;
   cssVars: Record<string, unknown>;
@@ -23,36 +24,47 @@ export interface RegistryItem {
 
 const HOOKS_DIR = path.join(process.cwd(), "src/hooks");
 
-export async function parseHookFile(filename: string): Promise<{ content: string; metadata: HookMetadata } | null> {
-  const filePath = path.join(HOOKS_DIR, filename);
-  
-  // Security check: Path traversal prevention
-  if (!filePath.startsWith(HOOKS_DIR)) {
+function extractDocTag(docBlock: string, tag: string): string | null {
+  const match = docBlock.match(new RegExp(`@${tag}\\s+(.+)`));
+  return match?.[1]?.trim() ?? null;
+}
+
+export async function parseHookFile(
+  filename: string,
+): Promise<{ content: string; metadata: HookMetadata } | null> {
+  const filePath = path.resolve(HOOKS_DIR, filename);
+
+  if (!filePath.startsWith(`${HOOKS_DIR}${path.sep}`)) {
     throw new Error("Invalid hook path");
   }
 
   try {
     const content = await fs.readFile(filePath, "utf-8");
-    
-    const nameMatch = content.match(/@name\s+(.+)/);
-    const descMatch = content.match(/@description\s+(.+)/);
-    const depsMatch = content.match(/@dependencies\s+(.+)/);
 
-    if (!nameMatch || !descMatch || !depsMatch) {
+    const docBlock = content.match(/\/\*\*[\s\S]*?\*\//)?.[0] ?? "";
+    const name = extractDocTag(docBlock, "name");
+    const description = extractDocTag(docBlock, "description");
+    const dependenciesTag = extractDocTag(docBlock, "dependencies");
+
+    if (!name || !description || !dependenciesTag) {
       return null;
     }
 
-    const dependencies = depsMatch[1].trim() === "none" 
-      ? [] 
-      : depsMatch[1].split(",").map(d => d.trim());
+    const dependencies =
+      dependenciesTag.toLowerCase() === "none"
+        ? []
+        : dependenciesTag
+            .split(",")
+            .map((dependency) => dependency.trim())
+            .filter(Boolean);
 
     return {
       content,
       metadata: {
-        name: nameMatch[1].trim(),
-        description: descMatch[1].trim(),
-        dependencies
-      }
+        name,
+        description,
+        dependencies,
+      },
     };
   } catch {
     return null;
@@ -60,9 +72,11 @@ export async function parseHookFile(filename: string): Promise<{ content: string
 }
 
 export async function getRegistryItem(hookName: string): Promise<RegistryItem | null> {
-  // sanitize input
-  const sanitizedName = hookName.replace(/[^a-zA-Z0-9-]/g, "");
-  const result = await parseHookFile(`${sanitizedName}.ts`);
+  if (!/^[a-z0-9-]+$/i.test(hookName)) {
+    return null;
+  }
+
+  const result = await parseHookFile(`${hookName}.ts`);
 
   if (!result) return null;
 
@@ -71,12 +85,13 @@ export async function getRegistryItem(hookName: string): Promise<RegistryItem | 
     type: "registry:hook",
     files: [
       {
-        path: `hooks/${sanitizedName}.ts`,
+        path: `hooks/${hookName}.ts`,
         content: result.content,
         type: "registry:hook",
       },
     ],
     dependencies: result.metadata.dependencies,
+    devDependencies: [],
     registryDependencies: [],
     tailwind: {},
     cssVars: {},
