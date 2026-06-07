@@ -1,14 +1,17 @@
 "use client";
+
 import { useState } from "react";
-import { PackageManagerToggle, PackageManager } from "@/components/CodeBlocks/package-manager-toggle";
+import {
+  PackageManagerToggle,
+  PackageManager,
+} from "@/components/CodeBlocks/package-manager-toggle";
 import { InstallCodeBlock } from "@/components/CodeBlocks/install-code-block";
 import { ManualTabContent } from "@/components/CodeBlocks/manual-tab-content";
 import { cn } from "@/lib/utils";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Hook } from "@/registry/schema";
 
 type HookData = Hook;
-
+type Tab = "cli" | "manual";
 
 export function InstallContainer({
   hook,
@@ -17,55 +20,61 @@ export function InstallContainer({
   hook: HookData;
   className?: string;
 }) {
+  const [activeTab, setActiveTab] = useState<Tab>("cli");
   const [manager, setManager] = useState<PackageManager>("npm");
+
   const registryUrl = "https://ezhook.vercel.app";
 
   const getCommand = (mgr: PackageManager) => {
     const addCommand = `${registryUrl}/r/${hook.slug}`;
     switch (mgr) {
-      case "npm":
-        return `npx shadcn@latest add "${addCommand}"`;
-      case "pnpm":
-        return `pnpm dlx shadcn@latest add "${addCommand}"`;
-      case "yarn":
-        return `yarn dlx shadcn@latest add "${addCommand}"`;
-      case "bun":
-        return `bunx shadcn@latest add "${addCommand}"`;
+      case "npm":  return `npx shadcn@latest add "${addCommand}"`;
+      case "pnpm": return `pnpm dlx shadcn@latest add "${addCommand}"`;
+      case "yarn": return `yarn dlx shadcn@latest add "${addCommand}"`;
+      case "bun":  return `bunx shadcn@latest add "${addCommand}"`;
     }
   };
 
   return (
-    <div className={cn("w-full", className)}>
-      <Tabs defaultValue="cli" className="w-full">
-        {/* Tab bar row */}
-        <div className="flex items-center justify-between border-b border-border/50 px-1">
-          <TabsList variant="line" className="gap-1">
-            <TabsTrigger value="cli">CLI</TabsTrigger>
-            <TabsTrigger value="manual">Manual</TabsTrigger>
-          </TabsList>
+    <div className={cn("w-full overflow-hidden rounded-lg border border-border/50", className)}>
+
+      {/* ── Toolbar ── */}
+      <div className="flex items-center justify-between border-b border-border/50 bg-muted/40 px-3">
+        {/* Tab buttons — plain, no TabsList */}
+        <div className="flex items-center">
+          {(["cli", "manual"] as Tab[]).map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={cn(
+                "border-b-2 px-3 py-2.5 font-mono text-xs font-medium transition-colors duration-150 capitalize",
+                activeTab === tab
+                  ? "border-foreground text-foreground"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              )}
+            >
+              {tab === "cli" ? "CLI" : "Manual"}
+            </button>
+          ))}
         </div>
 
-        {/* CLI tab */}
-        <TabsContent value="cli" className="mt-0">
-          <div className="rounded-b-lg border border-t-0 border-border/50 bg-muted/30">
-            {/* Package manager toggle — sits in its own slim toolbar */}
-            <div className="flex items-center justify-end px-4 py-2 border-b border-border/40">
-              <PackageManagerToggle selected={manager} onSelect={setManager} />
-            </div>
-            {/* Command */}
-            <div className="px-4 py-3">
-              <InstallCodeBlock code={getCommand(manager)} />
-            </div>
-          </div>
-        </TabsContent>
+        {/* Package manager — only on CLI */}
+        {activeTab === "cli" && (
+          <PackageManagerToggle selected={manager} onSelect={setManager} />
+        )}
+      </div>
 
-        {/* Manual tab */}
-        <TabsContent value="manual" className="mt-0">
-          <div className="rounded-b-lg border border-t-0 border-border/50 bg-muted/30">
-            <ManualTabContent sourceCode={hook.sourceCode} />
-          </div>
-        </TabsContent>
-      </Tabs>
+      {/* ── Content ── */}
+      {activeTab === "cli" && (
+        <div className="px-4 py-3">
+          <InstallCodeBlock code={getCommand(manager)} />
+        </div>
+      )}
+
+      {activeTab === "manual" && (
+        <ManualTabContent sourceCode={hook.sourceCode} />
+      )}
+
     </div>
   );
 }
